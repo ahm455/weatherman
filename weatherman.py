@@ -92,5 +92,5 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
                         day = row[0].split("-")[2]
                         max_temp = int(row[1])
                         min_temp = int(row[3])
-                        print(f"{day} {RED}{'+' * max_temp}{END} {max_temp}C")
-                        print(f"{day} {BLUE}{'+' * min_temp}{END} {min_temp}C")
+                        print(f"{day} {RED}{'+' * 10}{END} {max_temp}C")
+                        print(f"{day} {BLUE}{'+' * 10}{END} {min_temp}C")

@@ -76,6 +76,9 @@ print(f'Lowest Average: {avg_min}')
 print(f'Average Humidity: {avg_humid}')                                            
 
 print("--------------------------------------3-----------------------------------------------------------")      
+RED = "\033[91m"
+BLUE = "\033[94m"
+END = "\033[0m"
 
 for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
    if "2011" in file and "Mar" in file:
@@ -85,16 +88,9 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
                 data = f.readlines()
                 csv_reader = csv.reader(data, delimiter=',')
                 for row in csv_reader:
-                    if len(row)>5:
+                    if len(row) > 5 and row[0] != "PKT":
                         day = row[0].split("-")[2]
-                        max_temp = row[1]
-                        if maxs.isdigit():
-                           min_temp = row[3]
-
-
-
-print(day)                           
-print(max_temp)
-print(min_temp)
-
-
+                        max_temp = int(row[1])
+                        min_temp = int(row[3])
+                        print(f"{day} {RED}{'+' * max_temp}{END} {max_temp}C")
+                        print(f"{day} {BLUE}{'+' * min_temp}{END} {min_temp}C")

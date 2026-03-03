@@ -24,7 +24,7 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
             
             
                     if len(row)>5:
-                        minimumtemp = row[2]
+                        minimumtemp = row[3]
                         if minimumtemp.isdigit():
                             if  int(minimumtemp) < int(mintemp):
                                     mintemp = minimumtemp
@@ -32,7 +32,7 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
 
 
                     if len(row)>5:
-                        maximumhum = row[6]
+                        maximumhum = row[7]
                         if maximumhum.isdigit():
                             if  int(maximumhum) > int(maxhumid):
                                     maxhumid = maximumhum
@@ -60,11 +60,11 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
                         if maxs.isdigit():
                             max_temps.append(int(maxs))
                     if len(row)>5:
-                        maxs = row[2]
+                        maxs = row[3]
                         if maxs.isdigit():
                             min_temps.append(int(maxs))
                     if len(row)>5:
-                        maxs = row[6]
+                        maxs = row[7]
                         if maxs.isdigit():
                             humid.append(int(maxs))
 avg_max = sum(max_temps) // len(max_temps)
@@ -91,8 +91,8 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
                         day = row[0].split("-")[2]
                         max_temp = int(row[1])
                         min_temp = int(row[3])
-                        print(f"{day} {RED}{'+' * 10}{END} {max_temp}C")
-                        print(f"{day} {BLUE}{'+' * 10}{END} {min_temp}C")
+                        print(f"{day} {RED}{'+' * 10} {max_temp}C{END}")
+                        print(f"{day} {BLUE}{'+' * 10} {min_temp}C{END}")
 
 print("--------------------------------------4-----------------------------------------------------------")
 

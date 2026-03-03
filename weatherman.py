@@ -1,6 +1,5 @@
 import os
 import csv
-import math
 
 maxtemp = 0
 mintemp=100
@@ -94,3 +93,19 @@ for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
                         min_temp = int(row[3])
                         print(f"{day} {RED}{'+' * 10}{END} {max_temp}C")
                         print(f"{day} {BLUE}{'+' * 10}{END} {min_temp}C")
+
+print("--------------------------------------4-----------------------------------------------------------")
+
+for file in os.listdir("/home/ahmed/Downloads/weatherdata (1)/weatherdata"):
+   if "2011" in file and "Mar" in file:
+        file_path = os.path.join("/home/ahmed/Downloads/weatherdata (1)/weatherdata", file)
+        with open(file_path, 'r') as f:
+            for line in file:
+                data = f.readlines()
+                csv_reader = csv.reader(data, delimiter=',')
+                for row in csv_reader:
+                    if len(row) > 5 and row[0] != "PKT":
+                        day = row[0].split("-")[2]
+                        max_temp = int(row[1])
+                        min_temp = int(row[3])
+                        print(f"{day} {'+' * 10} {RED}{max_temp}C{END} - {BLUE}{min_temp}C{END}")

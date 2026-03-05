@@ -1,0 +1,104 @@
+import os
+import csv  
+
+
+class weatherman:
+    def __init__(self, path):
+        self.path = path
+        self.maxtemp = 0
+        self.mintemp = 100
+        self.maxhumid = 0
+        self.max_temps = []
+        self.min_temps = []
+        self.humid =[]
+
+    def  yearly_report(self, year):
+        for file in os.listdir(self.path):
+            if year in file:
+                file_path = os.path.join(self.path, file)
+                with open(file_path, 'r') as f:
+                        data = f.readlines()
+                        csv_reader = csv.reader(data, delimiter=',')
+                        for row in csv_reader:
+                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit: 
+                                temp = row[1]
+                                if  int(temp) > int(self.maxtemp):
+                                            self.maxtemp = temp
+                                            date1 = row[0]
+                                temp = row[3]
+                                if  int(temp) < int(self.mintemp):
+                                            self.mintemp = temp
+                                            date2 = row[0]
+                                humid = row[7]
+                                if  int(humid) > int(self.maxhumid):
+                                            self.maxhumid = humid
+                                            date3 = row[0]
+
+        print (f"on {date1} is the max tempature {self.maxtemp}")                        
+        print (f"on {date2} is the min tempature {self.mintemp}")                           
+        print (f"on {date3} is the max humid {self.maxhumid}")
+
+    def monthly_report(self, year, month):
+        for file in os.listdir(self.path):
+            if year in file and month in file:
+                file_path = os.path.join(self.path, file)
+                with open(file_path, 'r') as f:
+                        data = f.readlines()
+                        csv_reader = csv.reader(data, delimiter=',')
+                        for row in csv_reader:
+                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
+                                maxs = row[1]
+                                self.max_temps.append(int(maxs))
+                                maxs = row[3]
+                                self.min_temps.append(int(maxs))
+                                maxs = row[7]
+                                self.humid.append(int(maxs))
+        avg_max = sum(self.max_temps) // len(self.max_temps)
+        avg_min = sum(self.min_temps) // len(self.min_temps)
+        avg_humid = sum(self.humid) // len(self.humid) 
+        print(f'Highest Average: {avg_max}')
+        print(f'Lowest Average: {avg_min}')
+        print(f'Average Humidity: {avg_humid}')
+
+    def monthly_report_with_colors(self, year, month):
+        RED = "\033[91m"
+        BLUE = "\033[94m"
+        END = "\033[0m"
+
+        for file in os.listdir(self.path):
+            if year in file and month in file:
+                file_path = os.path.join(self.path, file)
+                with open(file_path, 'r') as f:
+                        data = f.readlines()
+                        csv_reader = csv.reader(data, delimiter=',')
+                        for row in csv_reader:
+                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
+                                day = row[0].split("-")[2]
+                                max_temp = int(row[1])
+                                min_temp = int(row[3])
+                                print(f"{day} {RED}{'+' * 10} {max_temp}C{END}")
+                                print(f"{day} {BLUE}{'+' * 10} {min_temp}C{END}")
+
+    def monthly_report_with_colors_in_one_line(self, year, month):
+        RED = "\033[91m"
+        BLUE = "\033[94m"
+        END = "\033[0m"
+
+        for file in os.listdir(self.path):
+            if year in file and month in file:
+                file_path = os.path.join(self.path, file)
+                with open(file_path, 'r') as f:
+                        data = f.readlines()
+                        csv_reader = csv.reader(data, delimiter=',')
+                        for row in csv_reader:
+                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
+                                day = row[0].split("-")[2]
+                                max_temp = int(row[1])
+                                min_temp = int(row[3])
+                                print(f"{day} {'+' * 10} {RED}{max_temp}C{END} - {BLUE}{min_temp}C{END}")
+
+weatherman1 = weatherman("/home/ahmed/Downloads/weatherdata (1)/weatherdata")
+weatherman1.yearly_report("2007")
+weatherman1.monthly_report("2003", "Jun")
+weatherman1.monthly_report_with_colors("2008", "Mar")
+weatherman1.monthly_report_with_colors_in_one_line("2009", "Apr")

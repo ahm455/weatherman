@@ -1,104 +1,147 @@
 import os
-import csv  
+import csv
 
-
-class weatherman:
+class WeatherReport:
     def __init__(self, path):
         self.path = path
-        self.maxtemp = 0
-        self.mintemp = 100
-        self.maxhumid = 0
         self.max_temps = []
         self.min_temps = []
-        self.humid =[]
+        self.humid = []
+        self.maxtemp = None
+        self.mintemp = None
+        self.maxhumid = None
+        self.date_maxtemp = ""
+        self.date_mintemp = ""
+        self.date_maxhumid = ""
+        self.RED = "\033[91m"
+        self.BLUE = "\033[94m"
+        self.END = "\033[0m"
 
-    def  yearly_report(self, year):
+    def yearly_report(self, year):
         for file in os.listdir(self.path):
             if year in file:
                 file_path = os.path.join(self.path, file)
-                with open(file_path, 'r') as f:
-                        data = f.readlines()
-                        csv_reader = csv.reader(data, delimiter=',')
-                        for row in csv_reader:
-                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit: 
-                                temp = row[1]
-                                if  int(temp) > int(self.maxtemp):
-                                            self.maxtemp = temp
-                                            date1 = row[0]
-                                temp = row[3]
-                                if  int(temp) < int(self.mintemp):
-                                            self.mintemp = temp
-                                            date2 = row[0]
-                                humid = row[7]
-                                if  int(humid) > int(self.maxhumid):
-                                            self.maxhumid = humid
-                                            date3 = row[0]
+                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    lines = [line for line in f if line.strip() and not line.startswith("<")]
+                    header = [h.strip() for h in lines[0].split(",")]
+                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
 
-        print (f"on {date1} is the max tempature {self.maxtemp}")                        
-        print (f"on {date2} is the min tempature {self.mintemp}")                           
-        print (f"on {date3} is the max humid {self.maxhumid}")
+                    for row in csv_reader:
+                        row = { (k.strip() if k else ""): v for k, v in row.items() }
+                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
+                            continue
+
+                        max_temp_row = int(row['Max TemperatureC'])
+                        min_temp_row = int(row['Min TemperatureC'])
+                        max_humid_row = int(row['Max Humidity'])
+                        date = row['PKT']
+
+                        if self.maxtemp is None or max_temp_row > self.maxtemp:
+                            self.maxtemp = max_temp_row
+                            self.date_maxtemp = date
+                        if self.mintemp is None or min_temp_row < self.mintemp:
+                            self.mintemp = min_temp_row
+                            self.date_mintemp = date
+                        if self.maxhumid is None or max_humid_row > self.maxhumid:
+                            self.maxhumid = max_humid_row
+                            self.date_maxhumid = date
+
+        print(f"Max Temperature: {self.maxtemp} on {self.date_maxtemp}")
+        print(f"Min Temperature: {self.mintemp} on {self.date_mintemp}")
+        print(f"Max Humidity: {self.maxhumid} on {self.date_maxhumid}")
+
+    def average_report(self, year, month):
+        
+        for file in os.listdir(self.path):
+            if year in file and month in file:
+                file_path = os.path.join(self.path, file)
+                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    lines = [line for line in f if line.strip() and not line.startswith("<")]
+                    header = [h.strip() for h in lines[0].split(",")]
+                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
+
+                    for row in csv_reader:
+                        row = { (k.strip() if k else ""): v for k, v in row.items() }
+
+                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
+                            continue
+
+                        self.max_temps.append(int(row['Max TemperatureC']))
+                        self.min_temps.append(int(row['Min TemperatureC']))
+                        self.humid.append(int(row['Max Humidity']))
+
+        avg_max = sum(self.max_temps) // len(self.max_temps) if self.max_temps else 0
+        avg_min = sum(self.min_temps) // len(self.min_temps) if self.min_temps else 0
+        avg_humid = sum(self.humid) // len(self.humid) if self.humid else 0
+
+        print(f'Highest Average: {avg_max}')
+        print(f'Lowest Average: {avg_min}')
+        print(f'Average Humidity: {avg_humid}')
 
     def monthly_report(self, year, month):
         for file in os.listdir(self.path):
             if year in file and month in file:
                 file_path = os.path.join(self.path, file)
-                with open(file_path, 'r') as f:
-                        data = f.readlines()
-                        csv_reader = csv.reader(data, delimiter=',')
-                        for row in csv_reader:
-                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
-                                maxs = row[1]
-                                self.max_temps.append(int(maxs))
-                                maxs = row[3]
-                                self.min_temps.append(int(maxs))
-                                maxs = row[7]
-                                self.humid.append(int(maxs))
-        avg_max = sum(self.max_temps) // len(self.max_temps)
-        avg_min = sum(self.min_temps) // len(self.min_temps)
-        avg_humid = sum(self.humid) // len(self.humid) 
-        print(f'Highest Average: {avg_max}')
-        print(f'Lowest Average: {avg_min}')
-        print(f'Average Humidity: {avg_humid}')
+                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    lines = [line for line in f if line.strip() and not line.startswith("<")]
+                    header = [h.strip() for h in lines[0].split(",")]
+                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
 
-    def monthly_report_with_colors(self, year, month):
-        RED = "\033[91m"
-        BLUE = "\033[94m"
-        END = "\033[0m"
+                    for row in csv_reader:
+                        row = { (k.strip() if k else ""): v for k, v in row.items() }
 
+                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
+                            continue
+
+                        day = row['PKT'].split("-")[2]
+                        max_temp = int(row['Max TemperatureC'])
+                        min_temp = int(row['Min TemperatureC'])
+
+                        print(f"{day} {self.RED}{'+' * 10} {max_temp}C{self.END}")
+                        print(f"{day} {self.BLUE}{'+' * 10} {min_temp}C{self.END}")
+
+    def monthly_report_color(self, year, month):
         for file in os.listdir(self.path):
             if year in file and month in file:
                 file_path = os.path.join(self.path, file)
-                with open(file_path, 'r') as f:
-                        data = f.readlines()
-                        csv_reader = csv.reader(data, delimiter=',')
-                        for row in csv_reader:
-                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
-                                day = row[0].split("-")[2]
-                                max_temp = int(row[1])
-                                min_temp = int(row[3])
-                                print(f"{day} {RED}{'+' * 10} {max_temp}C{END}")
-                                print(f"{day} {BLUE}{'+' * 10} {min_temp}C{END}")
+                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    lines = [line for line in f if line.strip() and not line.startswith("<")]
+                    header = [h.strip() for h in lines[0].split(",")]
+                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
 
-    def monthly_report_with_colors_in_one_line(self, year, month):
-        RED = "\033[91m"
-        BLUE = "\033[94m"
-        END = "\033[0m"
+                    for row in csv_reader:
+                        row = { (k.strip() if k else ""): v for k, v in row.items() }
 
+                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
+                            continue
+
+                        day = row['PKT'].split("-")[2]
+                        max_temp = int(row['Max TemperatureC'])
+                        min_temp = int(row['Min TemperatureC'])
+
+                        print(f"{day} {self.RED}{'+' * 10} {max_temp}C{self.END}")
+                        print(f"{day} {self.BLUE}{'+' * 10} {min_temp}C{self.END}")
+
+    def monthly_report_color(self, year, month):
         for file in os.listdir(self.path):
             if year in file and month in file:
                 file_path = os.path.join(self.path, file)
-                with open(file_path, 'r') as f:
-                        data = f.readlines()
-                        csv_reader = csv.reader(data, delimiter=',')
-                        for row in csv_reader:
-                            if len(row)>5 and row[1].isdigit() and row[7].isdigit() and row[3].isdigit:
-                                day = row[0].split("-")[2]
-                                max_temp = int(row[1])
-                                min_temp = int(row[3])
-                                print(f"{day} {'+' * 10} {RED}{max_temp}C{END} - {BLUE}{min_temp}C{END}")
+                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    lines = [line for line in f if line.strip() and not line.startswith("<")]
+                    header = [h.strip() for h in lines[0].split(",")]
+                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
 
-weatherman1 = weatherman("/home/ahmed/Downloads/weatherdata (1)/weatherdata")
-weatherman1.yearly_report("2007")
-weatherman1.monthly_report("2003", "Jun")
-weatherman1.monthly_report_with_colors("2008", "Mar")
-weatherman1.monthly_report_with_colors_in_one_line("2009", "Apr")
+                    for row in csv_reader:
+                        row = { (k.strip() if k else ""): v for k, v in row.items() }
+                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
+                            continue
+                        day = row['PKT'].split("-")[2]
+                        max_temp = int(row['Max TemperatureC'])
+                        min_temp = int(row['Min TemperatureC'])
+                        print(f"{day} {'+' * 10} {self.RED}{max_temp}C{self.END} - {self.BLUE}{min_temp}C{self.END}")
+
+weatherman= WeatherReport("/home/ahmed/Downloads/weatherdata (1)/weatherdata")
+weatherman.yearly_report("2005")
+weatherman.average_report("2000", "Jun")
+weatherman.monthly_report("2012", "Mar")    
+weatherman.monthly_report_color("2003", "Mar")

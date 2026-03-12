@@ -108,29 +108,6 @@ class WeatherReport:
                     lines = [line for line in f if line.strip() and not line.startswith("<")]
                     header = [h.strip() for h in lines[0].split(",")]
                     csv_reader = csv.DictReader(lines[1:], fieldnames=header)
-
-                    for row in csv_reader:
-                        row = { (k.strip() if k else ""): v for k, v in row.items() }
-
-                        if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
-                            continue
-
-                        day = row['PKT'].split("-")[2]
-                        max_temp = int(row['Max TemperatureC'])
-                        min_temp = int(row['Min TemperatureC'])
-
-                        print(f"{day} {self.RED}{'+' * 10} {max_temp}C{self.END}")
-                        print(f"{day} {self.BLUE}{'+' * 10} {min_temp}C{self.END}")
-
-    def monthly_report_color(self, year, month):
-        for file in os.listdir(self.path):
-            if year in file and month in file:
-                file_path = os.path.join(self.path, file)
-                with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
-                    lines = [line for line in f if line.strip() and not line.startswith("<")]
-                    header = [h.strip() for h in lines[0].split(",")]
-                    csv_reader = csv.DictReader(lines[1:], fieldnames=header)
-
                     for row in csv_reader:
                         row = { (k.strip() if k else ""): v for k, v in row.items() }
                         if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
@@ -139,9 +116,13 @@ class WeatherReport:
                         max_temp = int(row['Max TemperatureC'])
                         min_temp = int(row['Min TemperatureC'])
                         print(f"{day} {'+' * 10} {self.RED}{max_temp}C{self.END} - {self.BLUE}{min_temp}C{self.END}")
-
+import sys
 weatherman= WeatherReport("/home/ahmed/Downloads/weatherdata (1)/weatherdata")
-weatherman.yearly_report("2005")
-weatherman.average_report("2000", "Jun")
-weatherman.monthly_report("2012", "Mar")    
-weatherman.monthly_report_color("2003", "Mar")
+if __name__ == "__main__":
+    input = sys.argv[1:]
+    year,month=input
+
+    weatherman.yearly_report(year)
+    weatherman.average_report(year, month)
+    weatherman.monthly_report(year, month)
+    weatherman.monthly_report_color(year, month)

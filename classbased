@@ -15,7 +15,27 @@ class WeatherReport:
         self.date_maxhumid = ""
         self.RED = "\033[91m"
         self.BLUE = "\033[94m"
-        self.END = "\033[0m"
+        self.END = "\033[0m" 
+
+    def max_temperature(self, row):
+        max_temp_row = int(row['Max TemperatureC'])
+        if self.maxtemp is None or max_temp_row > self.maxtemp:
+            self.maxtemp = max_temp_row
+            self.date_maxtemp = row['PKT']
+        return self.maxtemp, self.date_maxtemp 
+    def min_temperature(self, row):
+        min_temp_row = int(row['Min TemperatureC'])
+        if self.mintemp is None or min_temp_row < self.mintemp:
+            self.mintemp = min_temp_row
+            self.date_mintemp = row['PKT']
+        return self.mintemp, self.date_mintemp
+    def max_humidity(self, row):
+        max_humid_row = int(row['Max Humidity'])
+        if self.maxhumid is None or max_humid_row > self.maxhumid:
+            self.maxhumid = max_humid_row
+            self.date_maxhumid = row['PKT']
+        return self.maxhumid, self.date_maxhumid       
+
 
     def yearly_report(self, year):
         for file in os.listdir(self.path):
@@ -30,21 +50,10 @@ class WeatherReport:
                         row = { (k.strip() if k else ""): v for k, v in row.items() }
                         if row.get('PKT') == 'PKT' or any(not row.get(field) for field in ['PKT', 'Max TemperatureC', 'Min TemperatureC', 'Max Humidity']):
                             continue
-
-                        max_temp_row = int(row['Max TemperatureC'])
-                        min_temp_row = int(row['Min TemperatureC'])
-                        max_humid_row = int(row['Max Humidity'])
-                        date = row['PKT']
-
-                        if self.maxtemp is None or max_temp_row > self.maxtemp:
-                            self.maxtemp = max_temp_row
-                            self.date_maxtemp = date
-                        if self.mintemp is None or min_temp_row < self.mintemp:
-                            self.mintemp = min_temp_row
-                            self.date_mintemp = date
-                        if self.maxhumid is None or max_humid_row > self.maxhumid:
-                            self.maxhumid = max_humid_row
-                            self.date_maxhumid = date
+                        max_temp, date_max_temp = self.max_temperature(row)
+                        min_temp, date_min_temp = self.min_temperature(row)
+                        max_humid, date_max_humid = self.max_humidity(row)                    
+                        
 
         print(f"Max Temperature: {self.maxtemp} on {self.date_maxtemp}")
         print(f"Min Temperature: {self.mintemp} on {self.date_mintemp}")
